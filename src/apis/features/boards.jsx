@@ -1,7 +1,7 @@
 import apiClient from "../api-client";
 
-export const createBoard = (title) => {
-    return apiClient.post("/boards", { title });
+export const createBoard = (userData) => {
+    return apiClient.post("/boards", userData);
 }
 
 export const getBoards = () => {
