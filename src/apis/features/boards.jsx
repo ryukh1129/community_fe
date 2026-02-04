@@ -1,9 +1,9 @@
-import httpClient from "..";
+import apiClient from "../api-client";
 
 export const createBoard = (title) => {
-    return httpClient.post("/boards", { title });
+    return apiClient.post("/boards", { title });
 }
 
 export const getBoards = () => {
-    return httpClient.get("/boards");
+    return apiClient.get("/boards");
 }

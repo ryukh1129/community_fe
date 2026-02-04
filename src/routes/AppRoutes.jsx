@@ -17,10 +17,10 @@ function AppRoutes() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
-            {/* admin */}
+            {/* Admin */}
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/boards" element={<BoardManagementPage />} />
-            <Route path="/admin/boards/create" element={<BoardCreatePage />} />
+            <Route path="/admin/boards/create-form" element={<BoardCreatePage />} />
             
             {/* Boards */}
             <Route path="/boards" element={<BoardListPage />} />
