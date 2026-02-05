@@ -31,7 +31,7 @@ function AppRoutes() {
             {/* Boards */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/boards" element={<BoardListPage />} />
-                <Route path="/boards/:boardId" element={<ArticleListPage />} />
+                <Route path="/boards/:boardId/articles" element={<ArticleListPage />} />
                 <Route path="/boards/:boardId/articles/create-form" element={<ArticleCreatePage />} />
                 <Route path="/boards/:boardId/articles/:articleId" element={<ArticleDetailPage />} />
             </Route>

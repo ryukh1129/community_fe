@@ -28,7 +28,7 @@ function BoardListPage() {
     }, []);
 
     const handleBoardSelect = (board) => {
-        navigate(`/boards/${board.id}`, { state: { boardTitle: board.title } });
+        navigate(`/boards/${board.id}/articles`, { state: { boardTitle: board.title } });
     };
 
     return (
