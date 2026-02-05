@@ -1,25 +1,34 @@
 function ActionCard({title, text, buttonText, onButtonClick, buttonVariant = 'primary'}) {
     const buttonStyles = {
         primary: 'bg-blue-500 hover:bg-blue-700',
-        success: 'bg-green-500 hover:bg-green-700',
-        danger: 'bg-red-500 hover:bg-red-700',
-        secondary: 'bg-gray-500 hover:bg-gray-700',
+        success: 'bg-green-600 hover:bg-green-700',
+        danger: 'bg-red-600 hover:bg-red-700',
+        secondary: 'bg-gray-600 hover:bg-gray-700',
     };
 
-    const buttonClass = `w-full px-4 py-4 text-white rounded-lg ${buttonStyles[buttonVariant] || buttonStyles['primary']}`
+    const buttonClass = `w-full px-4 py-3 text-white font-medium rounded-lg transition-colors duration-200 ${buttonStyles[buttonVariant] || buttonStyles['primary']}`;
 
     return (
-        <div>
-            <h2>관리자 대시보드</h2>
-            <p>게시판 생성 및 사이트 설정</p>
+        <div className="flex flex-col h-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+            <div className="p-6 flex-grow">
+                <h5 className="text-xl font-bold text-gray-900 mb-2">
+                    {title}
+                </h5>
+                <p className="text-gray-600 leading-relaxed">
+                    {text}
+                </p>
+            </div>
 
-            <div>
-                <h5>{title}</h5>
-                <p>{text}</p>
-                <button onClick = {onButtonClick} className={`mt-4 ${buttonClass}`}>{buttonText}</button>
+            <div className="p-6 pt-0 mt-auto">
+                <button 
+                    onClick={onButtonClick} 
+                    className={buttonClass}
+                >
+                    {buttonText}
+                </button>
             </div>
         </div>
-    )    
+    );
 }
 
 export default ActionCard;
