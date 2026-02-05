@@ -6,6 +6,10 @@ import BoardManagementPage from "../pages/admin/board-management/BoardManagement
 import BoardCreatePage from "../pages/admin/board-management/BoardCreatePage";
 import LoginPage from "../pages/auth/LoginPage";
 import SignUpPage from "../pages/auth/SignUpPage";
+import ArticleListPage from "../pages/boards/articles/ArticleListPage";
+import ArticleCreatePage from "../pages/boards/articles/ArticleCreatePage";
+import ArticleDetailPage from "../pages/boards/articles/ArticleDetailPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
     return (
@@ -18,12 +22,19 @@ function AppRoutes() {
             <Route path="/signup" element={<SignUpPage />} />
 
             {/* Admin */}
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/boards" element={<BoardManagementPage />} />
-            <Route path="/admin/boards/create-form" element={<BoardCreatePage />} />
-            
+            <Route element={<ProtectedRoute />}>
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/boards" element={<BoardManagementPage />} />
+                <Route path="/admin/boards/create-form" element={<BoardCreatePage />} />
+            </Route>
+
             {/* Boards */}
-            <Route path="/boards" element={<BoardListPage />} />
+            <Route element={<ProtectedRoute />}>
+                <Route path="/boards" element={<BoardListPage />} />
+                <Route path="/boards/:boardId" element={<ArticleListPage />} />
+                <Route path="/boards/:boardId/articles/create-form" element={<ArticleCreatePage />} />
+                <Route path="/boards/:boardId/articles/:articleId" element={<ArticleDetailPage />} />
+            </Route>
         </Routes>
     )
 }
