@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NavLinks from "./NavLinks";
+import { useAuth } from "../../hooks/useAuth"; // useAuth 경로를 실제 위치에 맞게 수정하세요
 
 function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
