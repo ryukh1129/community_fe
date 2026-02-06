@@ -10,7 +10,7 @@ export const getArticleDetail = (boardId, articleId) => {
 
 export const createArticle = (boardId, articleData) => {
     const formData = new FormData();
-    const jsonData = { title: articleData.title, content: articleData.content };
+    const jsonData = { title: articleData.title, contents: articleData.contents };
     formData.append('articleData', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
     
     if (articleData.file) {

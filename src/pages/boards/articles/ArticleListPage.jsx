@@ -125,7 +125,7 @@ function ArticleListPage() {
                 
                 {/* 글쓰기 버튼 */}
                 <button
-                    onClick={() => navigate(`/boards/${boardId}/articles/create`)}
+                    onClick={() => navigate(`/boards/${boardId}/articles/create-form`)}
                     className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200 active:scale-95"
                 >
                     새 글 작성
