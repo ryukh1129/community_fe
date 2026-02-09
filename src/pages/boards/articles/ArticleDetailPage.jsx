@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getArticleDetail } from '../../../apis/features/articles';
 import { createComment } from '../../../apis/features/comments';
-import CommentListSection from './comments/CommentSection';
+import { toggleArticleLike } from '../../../apis/features/likes';
+import CommentSection from './comments/CommentSection';
 
 function ArticleDetailPage() {
     const { boardId, articleId } = useParams();
@@ -79,6 +80,18 @@ function ArticleDetailPage() {
         return <div className="text-center p-10">로딩 중...</div>;
     }
 
+    const handleArticleLike = async () => {
+        try {
+            await toggleArticleLike(boardId, articleId);
+            await fetchArticle();
+        } catch (error) {
+            console.error("좋아요 요청 실패", error);
+            if (error.response?.status === 401) {
+                alert("로그인이 필요한 서비스입니다.");
+            }
+        }
+    };
+    
     return (
         <main className="p-6 max-w-3xl mx-auto">
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
@@ -99,7 +112,7 @@ function ArticleDetailPage() {
                     </div>
                     <div>
                         <span className="font-semibold text-gray-700 mr-2">작성일:</span>
-                        {new Date(article.createdAt).toLocaleString()}
+                        {new Date(article.createdAt || article.createAt).toLocaleString()}
                     </div>
                 </div>
 
@@ -110,8 +123,30 @@ function ArticleDetailPage() {
                     </div>
                 )}
 
-                <div className="prose max-w-none text-gray-800">
-                    <pre className="whitespace-pre-wrap break-words font-sans">{article.contents}</pre>
+                <div className="prose max-w-none text-gray-800 mb-10">
+                    <pre className="whitespace-pre-wrap break-words font-sans">{article.content || article.contents}</pre>
+                </div>
+
+                <div className="flex justify-center border-t border-gray-100 pt-6">
+                    <button
+                        onClick={handleArticleLike}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all shadow-sm border ${
+                            article.liked 
+                                ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' 
+                                : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className={`h-5 w-5 transition-colors ${article.liked ? 'fill-current' : 'fill-none stroke-current'}`} 
+                            viewBox="0 0 24 24" 
+                            strokeWidth="2" 
+                            stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span>좋아요 {article.likesCount}</span>
+                    </button>
                 </div>
             </div>
 
@@ -120,7 +155,7 @@ function ArticleDetailPage() {
                     댓글 <span className="text-blue-600 ml-1">{article.comments ? article.comments.length : 0}</span>
                 </h3>
                 
-                <CommentListSection 
+                <CommentSection 
                     comments={nestedComments} 
                     onCommentSubmit={handleCreateComment}
                 />
