@@ -84,7 +84,7 @@ function ArticleDetailPage() {
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
                 <h1 className="text-2xl font-bold text-gray-800 truncate pr-4">{article.title}</h1>
                 <button 
-                    onClick={() => navigate(`/boards/${boardId}`)} 
+                    onClick={() => navigate(`/boards/${boardId}/articles`)} 
                     className="text-sm px-4 py-2 bg-gray-100 text-gray-600 font-medium rounded-lg hover:bg-gray-200 transition-colors flex-shrink-0"
                 >
                     목록으로
