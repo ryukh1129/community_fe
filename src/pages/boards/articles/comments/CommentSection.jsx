@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CommentItem from "./CommentItem";
 
-function CommentListSection({ comments, onCommentSubmit }) {
+function CommentSection({ comments, onCommentSubmit, onLike }) {
     const [formData, setFormData] = useState({
         contents: ''
     });
@@ -15,17 +15,14 @@ function CommentListSection({ comments, onCommentSubmit }) {
     };
 
     const handleRootCommentSubmit = (e) => {
-        e.preventDefault();
-        
+        e.preventDefault(); 
         if (!formData.contents.trim()) return;
         
         const commentData = {
             contents: formData.contents,
             parentCommentId: null
         };
-        
         onCommentSubmit(commentData);
-        
         setFormData({ contents: '' });
     };
 
@@ -64,7 +61,8 @@ function CommentListSection({ comments, onCommentSubmit }) {
                     <CommentItem 
                         key={comment.id} 
                         comment={comment} 
-                        onReplySubmit={handleReplySubmit} 
+                        onReplySubmit={handleReplySubmit}
+                        onLike={onLike} // <-- CommentItem으로 전달
                     />
                 )) : (
                     <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
@@ -76,4 +74,4 @@ function CommentListSection({ comments, onCommentSubmit }) {
     );
 }
 
-export default CommentListSection;
+export default CommentSection;

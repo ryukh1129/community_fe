@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getArticleDetail } from '../../../apis/features/articles';
 import { createComment } from '../../../apis/features/comments';
-import { toggleArticleLike } from '../../../apis/features/likes';
+import { toggleArticleLike, toggleCommentLike } from '../../../apis/features/likes'; // API 임포트 확인
 import CommentSection from './comments/CommentSection';
 
 function ArticleDetailPage() {
@@ -10,62 +10,45 @@ function ArticleDetailPage() {
     const [article, setArticle] = useState(null);
     const navigate = useNavigate();
     
-    // useMemo() 훅 : 댓글 데이터를 트리 구조로 변환하여 Memoization(캐싱) 처리
-    const nestedComments = useMemo(() => {
-        // 1. 댓글 데이터가 없으면 빈 배열 반환
-        if (!article?.comments) return [];
-
-        const commentMap = new Map(); // 댓글을 ID로 빠르게 찾기 위한 저장소
-        const rootComments = []; // 최상위(부모가 없는) 댓글을 담을 배열
-
-        // [첫 번째 반복문] : 모든 댓글을 Map에 등록 (준비 단계)
-        // "댓글 목록에서 하나씩(comment) 꺼내서 실행"
-        article.comments.forEach((comment) => {
-            // 기존 댓글 데이터(...comment)에 대댓글을 담을 빈 배열(childComments: [])을 추가해서
-            // Map에 저장(Key: 댓글ID, Value: 댓글객체)
-            commentMap.set(comment.id, { ...comment, childComments: [] });
-        });
-
-        // [두 번째 반복문] : 부모-자식 연결 (조립 단계)
-        // "다시 댓글 목록에서 하나씩(comment) 꺼내서 확인"
-        article.comments.forEach((comment) => {
-            // 1. 이 댓글(comment)에게 부모가 있는가?
-            if (comment.parentCommentId) {
-                // 부모가 있다면, Map에서 부모 댓글 찾기
-                const parentComment = commentMap.get(comment.parentCommentId);
-                // 부모 댓글이 실제로 존재한다면?
-                if (parentComment) {
-                    // 부모 댓글의 'childComments' 목록에 '나(현재 댓글)'를 집어넣기 (연결)
-                    // 여기서 들어가는 '나'는 위에서 childComments가 추가된 버전(commentMap.get(comment.id))
-                    parentComment.childComments.push(commentMap.get(comment.id));
-                }
-            } 
-            // 2. 부모가 없다면? (최상위 댓글)
-            else {
-                // 바로 화면에 보여질 최상위 목록에 넣기
-                rootComments.push(commentMap.get(comment.id));
-            }
-        });
-    // 정리가 끝난 최상위 댓글 목록(자식들을 품고 있음)을 반환
-    return rootComments;
-
-    }, [article]);
-
-    const fetchArticle = async () => {
+    // 1. 게시글 상세 조회
+    const fetchArticle = useCallback(async () => {
         try {
             const response = await getArticleDetail(boardId, articleId);
             setArticle(response.data);
         } catch (error) {
             console.error("게시글 상세 조회 실패", error);
             alert("게시글을 불러올 수 없습니다.");
-            navigate(`/boards`);
+            navigate(`/boards/${boardId}`);
         }
-    };
+    }, [boardId, articleId, navigate]);
 
     useEffect(() => {
         fetchArticle();
-    }, [boardId, articleId, navigate]);
+    }, [fetchArticle]);
 
+    // 2. 게시글 좋아요 핸들러
+    const handleArticleLike = async () => {
+        try {
+            await toggleArticleLike(boardId, articleId);
+            await fetchArticle(); // 화면 갱신
+        } catch (error) {
+            console.error("게시글 좋아요 실패", error);
+            if (error.response?.status === 401) alert("로그인이 필요합니다.");
+        }
+    };
+
+    // 3. 댓글 좋아요 핸들러
+    const handleCommentLike = async (commentId) => {
+        try {
+            await toggleCommentLike(boardId, articleId, commentId);
+            await fetchArticle(); // 화면 갱신
+        } catch (error) {
+            console.error("댓글 좋아요 실패", error);
+            if (error.response?.status === 401) alert("로그인이 필요합니다.");
+        }
+    };
+
+    // 4. 댓글 작성 핸들러
     const handleCreateComment = async (commentData) => {
         try {
             await createComment(boardId, articleId, commentData);
@@ -75,25 +58,32 @@ function ArticleDetailPage() {
             alert("댓글 작성에 실패했습니다.");
         }
     };
-
-    if (!article) {
-        return <div className="text-center p-10">로딩 중...</div>;
-    }
-
-    const handleArticleLike = async () => {
-        try {
-            await toggleArticleLike(boardId, articleId);
-            await fetchArticle();
-        } catch (error) {
-            console.error("좋아요 요청 실패", error);
-            if (error.response?.status === 401) {
-                alert("로그인이 필요한 서비스입니다.");
-            }
-        }
-    };
     
+    // 5. 트리 구조 변환 (JSON이 평탄화된 리스트로 오므로 필수)
+    const nestedComments = useMemo(() => {
+        if (!article?.comments) return [];
+        
+        const commentMap = new Map();
+        const rootComments = [];
+        
+        // JSON 데이터의 필드들을 그대로 복사해서 Map에 저장
+        article.comments.forEach(c => commentMap.set(c.id, { ...c, childComments: [] }));
+        
+        article.comments.forEach(c => {
+            if (c.parentCommentId && commentMap.has(c.parentCommentId)) {
+                commentMap.get(c.parentCommentId).childComments.push(commentMap.get(c.id));
+            } else {
+                rootComments.push(commentMap.get(c.id));
+            }
+        });
+        return rootComments;
+    }, [article]);
+
+    if (!article) return <div className="text-center p-10">로딩 중...</div>;
+
     return (
         <main className="p-6 max-w-3xl mx-auto">
+            {/* ... 헤더 및 본문 상단  ... */}
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
                 <h1 className="text-2xl font-bold text-gray-800 truncate pr-4">{article.title}</h1>
                 <button 
@@ -124,7 +114,7 @@ function ArticleDetailPage() {
                 )}
 
                 <div className="prose max-w-none text-gray-800 mb-10">
-                    <pre className="whitespace-pre-wrap break-words font-sans">{article.content || article.contents}</pre>
+                    <pre className="whitespace-pre-wrap break-words font-sans">{article.contents}</pre>
                 </div>
 
                 <div className="flex justify-center border-t border-gray-100 pt-6">
@@ -136,13 +126,7 @@ function ArticleDetailPage() {
                                 : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                         }`}
                     >
-                        <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            className={`h-5 w-5 transition-colors ${article.liked ? 'fill-current' : 'fill-none stroke-current'}`} 
-                            viewBox="0 0 24 24" 
-                            strokeWidth="2" 
-                            stroke="currentColor"
-                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${article.liked ? 'fill-current' : 'fill-none stroke-current'}`} viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                         <span>좋아요 {article.likesCount}</span>
@@ -158,6 +142,7 @@ function ArticleDetailPage() {
                 <CommentSection 
                     comments={nestedComments} 
                     onCommentSubmit={handleCreateComment}
+                    onLike={handleCommentLike} // <- 핸들러 전달
                 />
             </div>
             </main>
