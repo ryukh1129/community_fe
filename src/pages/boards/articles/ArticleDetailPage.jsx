@@ -106,18 +106,51 @@ function ArticleDetailPage() {
                     </div>
                 </div>
 
-                {article.files && article.files.length > 0 && (
-                    <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-                        <strong className="font-semibold mr-2">첨부파일:</strong> 
-                        {article.files[0].originalFileName}
-                    </div>
-                )}
-
                 <div className="prose max-w-none text-gray-800 mb-10">
                     <pre className="whitespace-pre-wrap break-words font-sans">{article.contents}</pre>
                 </div>
 
-                <div className="flex justify-center border-t border-gray-100 pt-6">
+                {/* 첨부 파일 섹션 */}
+                {article.files && article.files.length > 0 && (
+                    <div className="mb-8">
+                        <div className="flex flex-wrap gap-4">
+                            {article.files.map((file, index) => (
+                                <div key={index} className="group relative w-40 h-48 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+                                    {/* 이미지 영역 */}
+                                    <div className="w-full h-32 bg-gray-100 overflow-hidden">
+                                        <img 
+                                            src={`/temp/${file.storedFileName}`} 
+                                            alt={file.originalFileName}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            onError={(e) => {
+                                                e.target.src = "https://via.placeholder.com/150?text=No+Image";
+                                            }}
+                                        />
+                                    </div>
+                                    
+                                    {/* 파일 정보 영역 */}
+                                    <div className="p-2 border-t border-gray-50">
+                                        <p className="text-xs font-medium text-gray-800 truncate mb-1" title={file.originalFileName}>
+                                            {file.originalFileName}
+                                        </p>
+                                        <a 
+                                            href={`/${file.storedFileName}`} 
+                                            download={file.originalFileName}
+                                            className="text-[10px] text-blue-600 hover:underline flex items-center"
+                                        >
+                                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                            다운로드
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex justify-center border-t border-gray-100 pt-3">
                     <button
                         onClick={handleArticleLike}
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all shadow-sm border ${
