@@ -10,6 +10,7 @@ import ArticleListPage from "../pages/boards/articles/ArticleListPage";
 import ArticleCreatePage from "../pages/boards/articles/ArticleCreatePage";
 import ArticleDetailPage from "../pages/boards/articles/ArticleDetailPage";
 import ProtectedRoute from "./ProtectedRoute";
+import OAuth2SuccessPage from "../pages/auth/OAuth2SuccessPage";
 
 function AppRoutes() {
     return (
@@ -20,6 +21,7 @@ function AppRoutes() {
             {/* Auth */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login/google/callback" element={<OAuth2SuccessPage />} />
 
             {/* Admin */}
             <Route element={<ProtectedRoute />}>
