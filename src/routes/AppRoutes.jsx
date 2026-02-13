@@ -11,6 +11,8 @@ import ArticleCreatePage from "../pages/boards/articles/ArticleCreatePage";
 import ArticleDetailPage from "../pages/boards/articles/ArticleDetailPage";
 import ProtectedRoute from "./ProtectedRoute";
 import OAuth2SuccessPage from "../pages/auth/OAuth2SuccessPage";
+import ChatRoomListPage from "../pages/chatbot/ChatRoomListPage";
+import ChatPage from "../pages/chatbot/chat/ChatPage";
 
 function AppRoutes() {
     return (
@@ -36,6 +38,12 @@ function AppRoutes() {
                 <Route path="/boards/:boardId/articles" element={<ArticleListPage />} />
                 <Route path="/boards/:boardId/articles/create-form" element={<ArticleCreatePage />} />
                 <Route path="/boards/:boardId/articles/:articleId" element={<ArticleDetailPage />} />
+            </Route>
+
+            {/* Chatbot */}
+            <Route element={<ProtectedRoute />}>
+                <Route path="/chatbot" element={<ChatRoomListPage />} />
+                <Route path="/chatbot/:roomId" element={<ChatPage />} />
             </Route>
         </Routes>
     )
